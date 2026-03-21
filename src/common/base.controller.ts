@@ -1,9 +1,15 @@
 import { type Response, Router } from 'express';
 
+import { Controller } from '../decorators/controller.decorator.js';
+import { LoggerDecorator } from '../decorators/logger.decorator.js';
+import { Prop } from '../decorators/property.decorator.js';
 import type { IRoute } from '../interfaces/route.inteface.js';
 import type { LoggerService } from '../service/logger.service.js';
 
+@LoggerDecorator()
+@Controller()
 export abstract class BaseController {
+    @Prop()
     private readonly _router!: Router;
 
     constructor(private logger: LoggerService) {
