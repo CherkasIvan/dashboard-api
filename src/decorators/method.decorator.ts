@@ -1,7 +1,7 @@
 export function Method(
-    target?: Object,
-    propertyKey?: string,
-    propertyDescriptor?: PropertyDescriptor,
-) {
-    console.log(propertyKey);
+	target?: Object,
+	propertyKey?: string,
+	propertyDescriptor?: PropertyDescriptor,
+): void {
+	console.log(propertyKey);
 }

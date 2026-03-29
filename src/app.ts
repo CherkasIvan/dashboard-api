@@ -1,64 +1,56 @@
-import express, {
-    type Express,
-    type NextFunction,
-    type Request,
-    type Response,
-} from 'express';
+import express, { type Express } from 'express';
 import { Server } from 'http';
+import { inject, injectable } from 'inversify';
+import 'reflect-metadata';
 
-import type { UsersController } from './controller/users.controller.js';
-import { LoggerDecorator } from './decorators/logger.decorator.js';
-import { Prop } from './decorators/property.decorator.js';
-import type { ExceptionFilerError } from './helpers/errors/exception-filter.error.js';
-import type { ILogger } from './interfaces/logger.interface.js';
-import { Meta } from './metadata/metadata.js';
+import { AuthMiddleware } from '@common/middleware/auth.middleware';
+import type { UsersController } from '@controller/users.controller';
+import type { PrismaService } from '@database/prisma.service';
+import { TYPES } from '@helpers/consts/types.const';
+import type { IExceptionFilter } from '@interfaces/exception-filter.interface';
+import type { ILoggerService } from '@interfaces/service/logger.service.interface';
+import type { ConfigService } from '@service/config.service';
 
-@Meta
-@LoggerDecorator()
+@injectable()
 export class App {
-    @Prop()
-    public app: Express;
+	public app: Express;
+	public server!: Server;
+	public port: number;
 
-    @Prop()
-    public server!: Server;
+	public constructor(
+		@inject(TYPES.ILogger) private loggerService: ILoggerService,
+		@inject(TYPES.UsersController) private usersController: UsersController,
+		@inject(TYPES.ExceptionFilterError)
+		private exceptionFilterError: IExceptionFilter,
+		@inject(TYPES.PrismaService)
+		private prismaService: PrismaService,
+		@inject(TYPES.ConfigService)
+		private configService: ConfigService,
+	) {
+		this.app = express();
+		this.app.use(express.json());
+		this.port = this.configService.get('PORT');
+	}
 
-    @Prop()
-    public port: number;
+	public useMiddleware(): void {
+		const authMiddleware = new AuthMiddleware(this.configService.get('JWT_SECRET'));
+		this.app.use(authMiddleware.execute.bind(authMiddleware));
+	}
 
-    @Prop()
-    public logger!: ILogger;
+	public useRoutes(): void {
+		this.app.use('/users', this.usersController.router);
+	}
 
-    @Prop()
-    public usersController!: UsersController;
+	public useExceptionFilter(): void {
+		this.app.use(this.exceptionFilterError.catch.bind(this.exceptionFilterError));
+	}
 
-    @Prop()
-    public exceptionFilter!: ExceptionFilerError;
-
-    public constructor(
-        loggerService: ILogger,
-        usersController: UsersController,
-        exceptionFilterError: ExceptionFilerError,
-    ) {
-        this.app = express();
-        this.app.use(express.json());
-        this.port = 8000;
-        this.logger = loggerService;
-        this.usersController = usersController;
-        this.exceptionFilter = exceptionFilterError;
-    }
-
-    public useRoutes() {
-        this.app.use('/users', this.usersController.router);
-    }
-
-    public useExceptionFilter() {
-        this.app.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
-    }
-
-    public async init() {
-        this.useRoutes();
-        this.useExceptionFilter();
-        this.server = this.app.listen(this.port);
-        this.logger.log(`Сервер запущен на http://localhost:${this.port}`);
-    }
+	public async init(): Promise<void> {
+		this.useMiddleware();
+		this.useRoutes();
+		this.useExceptionFilter();
+		await this.prismaService.connect();
+		this.server = this.app.listen(this.port);
+		this.loggerService.log(`Сервер запущен на http://localhost:${this.port}`);
+	}
 }
