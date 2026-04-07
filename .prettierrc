@@ -12,7 +12,7 @@
 	"tabWidth": 4,
 	"useTabs": true,
 	"plugins": ["@trivago/prettier-plugin-sort-imports"],
-	"importOrder": ["^@(.*)$", "^[../]", "^[./]"],
+	"importOrder": ["^reflect-metadata$", "^@(.*)$", "^[../]", "^[./]"],
 	"importOrderSeparation": true,
 	"importOrderSortSpecifiers": true,
 	"importOrderParserPlugins": ["decorators-legacy", "typescript", "javascript"]

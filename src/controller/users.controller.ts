@@ -1,6 +1,7 @@
 import { type NextFunction, type Request, type Response } from 'express';
 import { inject, injectable } from 'inversify';
 import jwt from 'jsonwebtoken';
+
 import 'reflect-metadata';
 
 import { BaseController } from '@common/base.controller';

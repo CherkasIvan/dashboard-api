@@ -1,14 +1,15 @@
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 
-import type { UsersLoginDto } from '../controller/dto/users-login.dto.js';
-import type { UsersRegisterDto } from '../controller/dto/users-register.dto.js';
-import { UserEntity } from '../controller/entity/user.entity.js';
-import type { UserModel } from '../generated/prisma/index.js';
-import { TYPES } from '../helpers/consts/types.const.js';
-import type { IUsersRepository } from '../interfaces/repository/users.repository.interface.js';
-import type { IConfigService } from '../interfaces/service/config.service.interface.js';
-import type { IUsersService } from '../interfaces/service/users.service.interface.js';
+import type { UsersLoginDto } from '@controller/dto/users-login.dto';
+import type { UsersRegisterDto } from '@controller/dto/users-register.dto';
+import { UserEntity } from '@controller/entity/user.entity';
+import type { UserModel } from '@generated/prisma/index';
+import { TYPES } from '@helpers/consts/types.const';
+import type { IUsersRepository } from '@interfaces/repository/users.repository.interface';
+import type { IConfigService } from '@interfaces/service/config.service.interface';
+import type { IUsersService } from '@interfaces/service/users.service.interface';
 
+@injectable()
 export class UsersService implements IUsersService {
 	public constructor(
 		@inject(TYPES.ConfigService)

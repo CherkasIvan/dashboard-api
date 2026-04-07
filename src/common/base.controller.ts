@@ -1,5 +1,6 @@
 import { type Response, Router } from 'express';
 import { inject, injectable } from 'inversify';
+
 import 'reflect-metadata';
 
 import { Prop } from '@decorators/property.decorator';

@@ -1,4 +1,6 @@
-import { Container, ContainerModule, type ContainerModuleLoadOptions } from 'inversify';
+import { Container, ContainerModule } from 'inversify';
+
+import 'reflect-metadata';
 
 import { UsersRepository } from '@controller/repositories/users.repository';
 import { UsersController } from '@controller/users.controller';
@@ -11,29 +13,28 @@ import type { IExceptionFilter } from '@interfaces/exception-filter.interface';
 import type { IConfigService } from '@interfaces/service/config.service.interface';
 import type { ILoggerService } from '@interfaces/service/logger.service.interface';
 import type { IUsersService } from '@interfaces/service/users.service.interface';
-import { ConfigService } from '@service/config.service';
-import { LoggerService } from '@service/logger.service';
-import { UsersService } from '@service/users.service';
+import { ConfigService } from '@service/config/config.service';
+import { LoggerService } from '@service/logger/logger.service';
+import { UsersService } from '@service/users/users.service';
 
 import { App } from './app';
 
-export const appContainerBinding = new ContainerModule((options: ContainerModuleLoadOptions) => {
-	options.bind<ILoggerService>(TYPES.ILogger).to(LoggerService).inSingletonScope();
-	options.bind<IExceptionFilter>(TYPES.ExceptionFilterError).to(ExceptionFilterError);
-	options.bind<IUsersController>(TYPES.UsersController).to(UsersController);
-	options.bind<IUsersService>(TYPES.UsersService).to(UsersService);
-	options.bind<PrismaService>(TYPES.PrismaService).to(PrismaService).inSingletonScope();
-	options.bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inSingletonScope();
-	options.bind<UsersRepository>(TYPES.UsersRepository).to(UsersRepository).inSingletonScope();
-	options.bind<App>(TYPES.Application).to(App);
+export const appContainerBinding = new ContainerModule((bind, unbind, isBound, rebind) => {
+	bind<ILoggerService>(TYPES.ILogger).to(LoggerService).inSingletonScope();
+	bind<IExceptionFilter>(TYPES.ExceptionFilterError).to(ExceptionFilterError);
+	bind<IUsersController>(TYPES.UsersController).to(UsersController);
+	bind<IUsersService>(TYPES.UsersService).to(UsersService);
+	bind<PrismaService>(TYPES.PrismaService).to(PrismaService).inSingletonScope();
+	bind<IConfigService>(TYPES.ConfigService).to(ConfigService).inSingletonScope();
+	bind<UsersRepository>(TYPES.UsersRepository).to(UsersRepository).inSingletonScope();
+	bind<App>(TYPES.Application).to(App);
 });
 
-function bootstrap(): IBootstrapReturn {
+async function bootstrap(): Promise<IBootstrapReturn> {
 	const appContainer = new Container();
 	appContainer.load(appContainerBinding);
 	const app = appContainer.get<App>(TYPES.Application);
-	app.init();
+	await app.init();
 	return { app, appContainer };
 }
-
-export const { app, appContainer } = bootstrap();
+export const boot = bootstrap();

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
+
 import 'reflect-metadata';
 
 import type { IExceptionFilter } from '@interfaces/exception-filter.interface.js';

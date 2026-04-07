@@ -5,5 +5,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "always"   
   },
-  "prisma.pinToPrisma6": false
+  "prisma.pinToPrisma6": false,
+    "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.includePackageJsonAutoImports": "off"
 }

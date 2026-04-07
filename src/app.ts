@@ -1,6 +1,7 @@
 import express, { type Express } from 'express';
 import { Server } from 'http';
 import { inject, injectable } from 'inversify';
+
 import 'reflect-metadata';
 
 import { AuthMiddleware } from '@common/middleware/auth.middleware';
@@ -9,7 +10,7 @@ import type { PrismaService } from '@database/prisma.service';
 import { TYPES } from '@helpers/consts/types.const';
 import type { IExceptionFilter } from '@interfaces/exception-filter.interface';
 import type { ILoggerService } from '@interfaces/service/logger.service.interface';
-import type { ConfigService } from '@service/config.service';
+import type { ConfigService } from '@service/config/config.service';
 
 @injectable()
 export class App {
@@ -52,5 +53,11 @@ export class App {
 		await this.prismaService.connect();
 		this.server = this.app.listen(this.port);
 		this.loggerService.log(`Сервер запущен на http://localhost:${this.port}`);
+	}
+
+	public async close(): Promise<void> {
+		this.server.close();
+		await this.prismaService.disconnect();
+		this.loggerService.log(`Сервер закрыт. Порт: ${this.port}`);
 	}
 }
